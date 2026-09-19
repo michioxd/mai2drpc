@@ -6,6 +6,9 @@ namespace Mai2DRPC.Game
         public string? Title { get; }
         public string? Artist { get; }
         public string? Difficulty { get; }
+        public string? Level { get; }
+        public decimal? AchievementPlus { get; }
+        public decimal? AchievementMinus { get; }
         public string GameName { get; }
 
         public GameState(
@@ -13,6 +16,9 @@ namespace Mai2DRPC.Game
             string? title = null,
             string? artist = null,
             string? difficulty = null,
+            string? level = null,
+            decimal? achievementPlus = null,
+            decimal? achievementMinus = null,
             string gameName = "maimai でらっくす"
         )
         {
@@ -20,9 +26,13 @@ namespace Mai2DRPC.Game
             Title = title;
             Artist = artist;
             Difficulty = difficulty;
+            Level = level;
+            AchievementPlus = achievementPlus;
+            AchievementMinus = achievementMinus;
             GameName = gameName;
         }
 
-        public override string ToString() => $"{Screen}|{Artist}|{Title}|{Difficulty}|{GameName}";
+        public override string ToString() =>
+            $"{Screen}|{Artist}|{Title}|{Difficulty}|{Level}|{AchievementPlus}|{AchievementMinus}|{GameName}";
     }
 }

@@ -9,6 +9,7 @@ namespace Mai2DRPC.Discord
     {
         private readonly DiscordIpcClient? client;
         private readonly MelonLogger.Instance logger;
+        private readonly string achievementMode;
         private string? lastState;
         private string? lastGameName;
 
@@ -18,6 +19,7 @@ namespace Mai2DRPC.Discord
         {
             this.logger = logger;
             UpdateInterval = config.UpdateInterval;
+            achievementMode = config.Achievement;
 
             if (!config.Enabled)
             {
@@ -64,16 +66,14 @@ namespace Mai2DRPC.Discord
             {
                 (string details, string status) = build(state);
                 string? difficulty =
-                    state.Screen == GameScreen.Playing
-                        ? state.Difficulty?.ToLowerInvariant().Replace("re:master", "remaster")
-                        : null;
+                    state.Screen == GameScreen.Playing ? formatDifficulty(state.Difficulty) : null;
                 client.SetActivity(
                     truncate(details),
                     truncate(status),
                     getVersionAsset(state.GameName),
                     state.GameName,
-                    difficulty,
-                    state.Difficulty
+                    difficulty?.ToLowerInvariant().Replace(":", "").Replace("-", ""),
+                    difficulty
                 );
                 lastState = state.ToString();
                 logger.Msg($"Game state: {state.Screen}");
@@ -88,7 +88,7 @@ namespace Mai2DRPC.Discord
             }
         }
 
-        private static (string details, string status) build(GameState state)
+        private (string details, string status) build(GameState state)
         {
             string details =
                 state.Screen == GameScreen.Playing
@@ -116,9 +116,15 @@ namespace Mai2DRPC.Discord
                     status = "Dan Course";
                     break;
                 case GameScreen.Playing:
-                    status = string.IsNullOrWhiteSpace(state.Difficulty)
-                        ? "Playing"
-                        : state.Difficulty!;
+                    status = formatDifficulty(state.Difficulty) ?? "Playing";
+                    if (!string.IsNullOrWhiteSpace(state.Level))
+                        status += $" {state.Level}";
+                    decimal? achievement =
+                        achievementMode == "+" ? state.AchievementPlus
+                        : achievementMode == "-" ? state.AchievementMinus
+                        : null;
+                    if (achievement.HasValue)
+                        status += $" {achievement.Value:F4}%";
                     break;
                 case GameScreen.Result:
                     status = "Result";
@@ -134,6 +140,16 @@ namespace Mai2DRPC.Discord
                     break;
             }
             return (details, status);
+        }
+
+        private static string? formatDifficulty(string? difficulty)
+        {
+            if (string.IsNullOrWhiteSpace(difficulty))
+                return null;
+            string normalized = difficulty!.Replace(":", "").Replace("-", "").ToUpperInvariant();
+            return normalized == "REMASTER" ? "Re:MASTER"
+                : normalized == "UTAGE" ? "U-TA-GE"
+                : normalized;
         }
 
         private static string getVersionAsset(string gameName)

@@ -41,21 +41,39 @@ namespace Mai2DRPC.Game
                 score?.SessionInfo.difficulty ?? GameManager.SelectDifficultyID[0]
             );
             MusicData? music = Singleton<DataManager>.Instance.GetMusic(musicId);
-            return fromMusic(GameScreen.Playing, music, difficulty);
+            return fromMusic(
+                GameScreen.Playing,
+                music,
+                difficulty,
+                score?.GetAchivement(),
+                score?.GetDecTheoryAchivement()
+            );
         }
 
         private static GameState fromMusic(
             GameScreen screen,
             MusicData? music,
-            MusicDifficultyID difficulty
+            MusicDifficultyID difficulty,
+            decimal? achievementPlus = null,
+            decimal? achievementMinus = null
         )
         {
             string? difficultyName = difficulty.IsValid() ? difficulty.GetName() : null;
+            int notesIndex = difficulty == MusicDifficultyID.Strong ? 0 : (int)difficulty;
+            Notes? notes =
+                music != null && notesIndex >= 0 && notesIndex < music.notesData.Count
+                    ? music.notesData[notesIndex]
+                    : null;
+            string? level =
+                notes == null ? null : $"{notes.level}{(notes.levelDecimal >= 7 ? "+" : "")}";
             return new GameState(
                 screen,
                 music?.name?.str,
                 music?.artistName?.str,
                 difficultyName,
+                level,
+                achievementPlus,
+                achievementMinus,
                 getGameName()
             );
         }
