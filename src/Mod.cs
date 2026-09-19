@@ -19,6 +19,7 @@ namespace Mai2DRPC
         public override void OnInitializeMelon()
         {
             ModConfig config = ModConfig.Load(LoggerInstance);
+            ProcessTracker.Verbose = config.Verbose;
             HarmonyInstance.PatchAll();
             stateReader = new GameStateReader();
             presence = new DiscordPresence(config, LoggerInstance);

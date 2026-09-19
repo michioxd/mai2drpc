@@ -10,6 +10,7 @@ namespace Mai2DRPC.Configuration
         public double UpdateInterval { get; private set; } = 1.0;
         public string Achievement { get; private set; } = "-";
         public bool ShowButton { get; private set; } = true;
+        public bool Verbose { get; private set; }
 
         public static ModConfig Load(MelonLogger.Instance logger)
         {
@@ -37,6 +38,7 @@ namespace Mai2DRPC.Configuration
                     true,
                     "Show the mai2drpc GitHub button"
                 );
+                var verbose = category.CreateEntry("Verbose", false, "Enable diagnostic logs");
                 MelonPreferences.Save();
                 return new ModConfig
                 {
@@ -45,6 +47,7 @@ namespace Mai2DRPC.Configuration
                     UpdateInterval = Math.Max(0.25, updateInterval.Value),
                     Achievement = achievement.Value,
                     ShowButton = showButton.Value,
+                    Verbose = verbose.Value,
                 };
             }
             catch (Exception exception)

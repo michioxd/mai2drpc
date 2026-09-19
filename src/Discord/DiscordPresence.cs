@@ -11,6 +11,7 @@ namespace Mai2DRPC.Discord
         private readonly MelonLogger.Instance logger;
         private readonly string achievementMode;
         private readonly bool showButton;
+        private readonly bool verbose;
         private string? lastState;
         private string? lastGameName;
 
@@ -22,6 +23,7 @@ namespace Mai2DRPC.Discord
             UpdateInterval = config.UpdateInterval;
             achievementMode = config.Achievement;
             showButton = config.ShowButton;
+            verbose = config.Verbose;
 
             if (!config.Enabled)
             {
@@ -36,7 +38,7 @@ namespace Mai2DRPC.Discord
 
             try
             {
-                client = new DiscordIpcClient(config.ClientId, logger);
+                client = new DiscordIpcClient(config.ClientId, logger, verbose);
                 client.OnReady += () =>
                 {
                     lastState = null;
@@ -56,7 +58,8 @@ namespace Mai2DRPC.Discord
         {
             if (state.GameName != lastGameName)
             {
-                logger.Msg($"Game version: {state.GameName}");
+                if (verbose)
+                    logger.Msg($"Game version: {state.GameName}");
                 lastGameName = state.GameName;
             }
 
@@ -84,10 +87,11 @@ namespace Mai2DRPC.Discord
                     showButton ? "https://github.com/michioxd/mai2drpc" : null
                 );
                 lastState = state.ToString();
-                logger.Msg($"Game state: {state.Screen}");
-                if (!string.IsNullOrWhiteSpace(state.Title))
+                if (verbose)
+                    logger.Msg($"Game state: {state.Screen}");
+                if (verbose && !string.IsNullOrWhiteSpace(state.Title))
                     logger.Msg($"Song: {state.Artist} - {state.Title}");
-                if (!string.IsNullOrWhiteSpace(state.Difficulty))
+                if (verbose && !string.IsNullOrWhiteSpace(state.Difficulty))
                     logger.Msg($"Difficulty: {state.Difficulty}");
             }
             catch (Exception exception)

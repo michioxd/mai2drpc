@@ -7,6 +7,7 @@ namespace Mai2DRPC.Game
     internal static class ProcessTracker
     {
         public static ProcessBase? Current { get; private set; }
+        public static bool Verbose { get; set; }
 
         public static void Added(ProcessBase process)
         {
@@ -59,9 +60,10 @@ namespace Mai2DRPC.Game
         [HarmonyPostfix]
         private static void postfix(ProcessBase? process, uint __result)
         {
-            MelonLoader.MelonLogger.Msg(
-                $"[ProcessTracker] Added process: {process?.GetType().Name} (Result={__result})"
-            );
+            if (ProcessTracker.Verbose)
+                MelonLoader.MelonLogger.Msg(
+                    $"[ProcessTracker] Added process: {process?.GetType().Name} (Result={__result})"
+                );
             if (__result != 0 && process != null)
                 ProcessTracker.Added(process);
         }
@@ -73,9 +75,10 @@ namespace Mai2DRPC.Game
         [HarmonyPostfix]
         private static void postfix(ProcessBase? process)
         {
-            MelonLoader.MelonLogger.Msg(
-                $"[ProcessTracker] Released process: {process?.GetType().Name}"
-            );
+            if (ProcessTracker.Verbose)
+                MelonLoader.MelonLogger.Msg(
+                    $"[ProcessTracker] Released process: {process?.GetType().Name}"
+                );
             if (process != null)
                 ProcessTracker.Released(process);
         }

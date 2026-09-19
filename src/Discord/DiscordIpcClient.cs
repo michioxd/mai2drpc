@@ -14,6 +14,7 @@ namespace Mai2DRPC.Discord
 
         private readonly string clientId;
         private readonly MelonLogger.Instance logger;
+        private readonly bool verbose;
         private readonly int pid = System.Diagnostics.Process.GetCurrentProcess().Id;
         private readonly long startTimeUnix = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
@@ -32,10 +33,11 @@ namespace Mai2DRPC.Discord
 
         public bool IsReady => connected;
 
-        public DiscordIpcClient(string clientId, MelonLogger.Instance logger)
+        public DiscordIpcClient(string clientId, MelonLogger.Instance logger, bool verbose)
         {
             this.clientId = clientId;
             this.logger = logger;
+            this.verbose = verbose;
         }
 
         public void Start()
@@ -71,7 +73,8 @@ namespace Mai2DRPC.Discord
             string json =
                 $"{{\"cmd\":\"SET_ACTIVITY\",\"args\":{{\"pid\":{pid},\"activity\":{activity}}},\"nonce\":\"{n}\"}}";
 
-            logger.Msg($"[IPC] Sending SET_ACTIVITY: {json}");
+            if (verbose)
+                logger.Msg($"[IPC] Sending SET_ACTIVITY: {json}");
             writeFrame(opframe, json);
         }
 
@@ -104,7 +107,8 @@ namespace Mai2DRPC.Discord
                         {
                             pipe.Write(frame, 0, frame.Length);
                             pipe.Flush();
-                            logger.Msg("[IPC] Wrote Handshake");
+                            if (verbose)
+                                logger.Msg("[IPC] Wrote Handshake");
                             beginReadHeader();
                         }
                         catch
@@ -131,7 +135,8 @@ namespace Mai2DRPC.Discord
                         PipeOptions.Asynchronous
                     );
                     p.Connect(10);
-                    logger.Msg($"[IPC] Connected to discord-ipc-{i}");
+                    if (verbose)
+                        logger.Msg($"[IPC] Connected to discord-ipc-{i}");
                     return p;
                 }
                 catch { }
@@ -159,7 +164,8 @@ namespace Mai2DRPC.Discord
                     pipe.Write(frame, 0, frame.Length);
                     pipe.Flush();
                 }
-                logger.Msg($"[IPC] Sent frame of length {frame.Length}");
+                if (verbose)
+                    logger.Msg($"[IPC] Sent frame of length {frame.Length}");
                 beginReadHeader();
             }
             catch (Exception ex)
@@ -238,7 +244,8 @@ namespace Mai2DRPC.Discord
                 }
 
                 string jsonStr = Encoding.UTF8.GetString(readBuffer, 0, bytesRead);
-                logger.Msg($"[IPC] RCV (op={opcode}): {jsonStr}");
+                if (verbose)
+                    logger.Msg($"[IPC] RCV (op={opcode}): {jsonStr}");
                 handleFrame(opcode, jsonStr);
             }
             catch
@@ -249,7 +256,8 @@ namespace Mai2DRPC.Discord
 
         private void handleFrame(int opcode, string json)
         {
-            logger.Msg($"[IPC] handleFrame: {json}");
+            if (verbose)
+                logger.Msg($"[IPC] handleFrame: {json}");
             if (opcode == opclose)
             {
                 logger.Warning($"[IPC] Discord closed: {json}");
