@@ -18,6 +18,7 @@ namespace Mai2DRPC.Discord
         private readonly long startTimeUnix = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
         private NamedPipeClientStream? pipe;
+        private readonly AutoResetEvent reconnectSignal = new AutoResetEvent(false);
         private int nonce;
         private volatile bool connected;
         private volatile bool disposed;
@@ -79,6 +80,7 @@ namespace Mai2DRPC.Discord
             disposed = true;
             connected = false;
             closePipe();
+            reconnectSignal.Set();
         }
 
         private void connectLoop()
@@ -112,7 +114,7 @@ namespace Mai2DRPC.Discord
                     }
                 }
 
-                sleepInterruptible(pipe != null && pipe.IsConnected ? 100 : reconnectdelayms);
+                reconnectSignal.WaitOne(pipe != null && pipe.IsConnected ? 100 : reconnectdelayms);
             }
         }
 
@@ -289,16 +291,7 @@ namespace Mai2DRPC.Discord
             }
             catch { }
             pipe = null;
-        }
-
-        private void sleepInterruptible(int ms)
-        {
-            int remaining = ms;
-            while (remaining > 0 && !disposed)
-            {
-                Thread.Sleep(Math.Min(200, remaining));
-                remaining -= 200;
-            }
+            reconnectSignal.Set();
         }
 
         private string buildActivity(

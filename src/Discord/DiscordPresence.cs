@@ -37,7 +37,11 @@ namespace Mai2DRPC.Discord
             try
             {
                 client = new DiscordIpcClient(config.ClientId, logger);
-                client.OnReady += () => logger.Msg("Discord Ready.");
+                client.OnReady += () =>
+                {
+                    lastState = null;
+                    logger.Msg("Discord Ready.");
+                };
                 client.OnError += msg => logger.Error($"Discord error: {msg}");
                 client.Start();
                 logger.Msg($"Discord Rich Presence started (clientId={config.ClientId}).");
