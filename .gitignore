@@ -341,4 +341,4 @@ inspectcode
 FodyWeavers.xsd
 **/FodyWeavers.xml
 
-game/
+game/**

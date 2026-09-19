@@ -2,16 +2,14 @@
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>disable</Nullable>
+		<Nullable>enable</Nullable>
 		<RootNamespace>Mai2DRPC</RootNamespace>
-		<LangVersion>default</LangVersion>
 		<IsPackable>false</IsPackable>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 		<FileVersion>1.0.0.0</FileVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<AssemblyName>Mai2DRPC</AssemblyName>
 		<LangVersion>latest</LangVersion>
-		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -245,20 +243,13 @@
 
 	<PropertyGroup>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Include="Core.cs" />
-		<Content Include="Directory.Build.props" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <PackageReference Include="DiscordRichPresence" Version="1.6.1.70" />
-	  <PackageReference Include="YamlDotNet" Version="16.3.0" />
+		<Compile Remove="game\**\*.cs" />
 	</ItemGroup>
 	
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="COPY &quot;$(TargetPath)&quot; &quot;$(GamePath)/Mods&quot;" />
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(DeployMod)' != 'false'">
+		<Exec Command="COPY /Y &quot;$(TargetDir)Mai2DRPC.dll&quot; &quot;$(GamePath)\Mods&quot;" />
 	</Target>
 </Project>
