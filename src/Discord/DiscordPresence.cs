@@ -10,6 +10,7 @@ namespace Mai2DRPC.Discord
         private readonly DiscordIpcClient? client;
         private readonly MelonLogger.Instance logger;
         private readonly string achievementMode;
+        private readonly bool showButton;
         private string? lastState;
         private string? lastGameName;
 
@@ -20,6 +21,7 @@ namespace Mai2DRPC.Discord
             this.logger = logger;
             UpdateInterval = config.UpdateInterval;
             achievementMode = config.Achievement;
+            showButton = config.ShowButton;
 
             if (!config.Enabled)
             {
@@ -73,7 +75,9 @@ namespace Mai2DRPC.Discord
                     getVersionAsset(state.GameName),
                     state.GameName,
                     difficulty?.ToLowerInvariant().Replace(":", "").Replace("-", ""),
-                    difficulty
+                    difficulty,
+                    showButton ? "mai2drpc" : null,
+                    showButton ? "https://github.com/michioxd/mai2drpc" : null
                 );
                 lastState = state.ToString();
                 logger.Msg($"Game state: {state.Screen}");

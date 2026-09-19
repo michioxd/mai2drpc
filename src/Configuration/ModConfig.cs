@@ -9,6 +9,7 @@ namespace Mai2DRPC.Configuration
         public bool Enabled { get; private set; } = true;
         public double UpdateInterval { get; private set; } = 1.0;
         public string Achievement { get; private set; } = "-";
+        public bool ShowButton { get; private set; } = true;
 
         public static ModConfig Load(MelonLogger.Instance logger)
         {
@@ -31,6 +32,11 @@ namespace Mai2DRPC.Configuration
                     "-",
                     "+ counts up, - counts down, false hides achievement"
                 );
+                var showButton = category.CreateEntry(
+                    "ShowButton",
+                    true,
+                    "Show the mai2drpc GitHub button"
+                );
                 MelonPreferences.Save();
                 return new ModConfig
                 {
@@ -38,6 +44,7 @@ namespace Mai2DRPC.Configuration
                     Enabled = enabled.Value,
                     UpdateInterval = Math.Max(0.25, updateInterval.Value),
                     Achievement = achievement.Value,
+                    ShowButton = showButton.Value,
                 };
             }
             catch (Exception exception)

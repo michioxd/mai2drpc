@@ -48,7 +48,9 @@ namespace Mai2DRPC.Discord
             string? largeImageKey = null,
             string? largeImageText = null,
             string? smallImageKey = null,
-            string? smallImageText = null
+            string? smallImageText = null,
+            string? buttonLabel = null,
+            string? buttonUrl = null
         )
         {
             if (!connected || pipe == null || !pipe.IsConnected)
@@ -61,7 +63,9 @@ namespace Mai2DRPC.Discord
                 largeImageKey,
                 largeImageText,
                 smallImageKey,
-                smallImageText
+                smallImageText,
+                buttonLabel,
+                buttonUrl
             );
             string json =
                 $"{{\"cmd\":\"SET_ACTIVITY\",\"args\":{{\"pid\":{pid},\"activity\":{activity}}},\"nonce\":\"{n}\"}}";
@@ -303,7 +307,9 @@ namespace Mai2DRPC.Discord
             string? largeImageKey,
             string? largeImageText,
             string? smallImageKey,
-            string? smallImageText
+            string? smallImageText,
+            string? buttonLabel,
+            string? buttonUrl
         )
         {
             var sb = new StringBuilder("{");
@@ -335,6 +341,14 @@ namespace Mai2DRPC.Discord
                         sb.Append($",\"small_text\":{jsonString(smallImageText!)}");
                 }
                 sb.Append('}');
+            }
+
+            if (!string.IsNullOrEmpty(buttonLabel) && !string.IsNullOrEmpty(buttonUrl))
+            {
+                sb.Append(",\"buttons\":[{");
+                sb.Append($"\"label\":{jsonString(buttonLabel!)},");
+                sb.Append($"\"url\":{jsonString(buttonUrl!)}");
+                sb.Append("}]");
             }
 
             sb.Append('}');
